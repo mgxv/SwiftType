@@ -56,7 +56,7 @@ Switch to SwiftType, open any text field, and start typing. The candidate bar ap
 
 | Key | Action |
 |---|---|
-| `1`–`7` | Commit the prediction in that column |
+| `1`–`6` | Commit the prediction in that column |
 | `Space` | Commit selected prediction + show next-word suggestions |
 | `Return` | Commit current selection |
 | `Escape` | Commit raw text and dismiss |
@@ -140,7 +140,7 @@ The entire app is `@MainActor`-isolated under **Swift 6 strict concurrency** wit
 xcodebuild -scheme SwiftTypeTests -configuration Debug test
 ```
 
-**1,004 tests** covering input state, grid navigation, key routing, spell-check predictions, KenLM predictions, theme system, settings persistence, typing rules, language management, and candidate window behavior.
+**1,005 tests** covering input state, grid navigation, key routing, spell-check predictions, KenLM predictions, theme system, settings persistence, typing rules, language management, and candidate window behavior.
 
 ---
 
@@ -153,7 +153,7 @@ SwiftType/
 ├── Prediction/     SpellCheckPredictor, KenLMPredictor, Obj-C++ bridge
 ├── Rules/          TypingRules protocol, language descriptors, English/German
 ├── UI/             Candidate window, settings panes, theme system
-├── Tests/          1,004 tests across all subsystems
+├── Tests/          1,005 tests across all subsystems
 ├── Resources/      KenLM binary models + truecase maps (~164 MB)
 ├── Frameworks/     kenlm.xcframework (static C++ libs)
 └── scripts/        KenLM model training, release packaging
