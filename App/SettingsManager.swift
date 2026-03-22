@@ -96,7 +96,7 @@ struct AppInputSourceMapping: Codable, Equatable, Sendable {
 
     var isNextWordPredictionsEnabled: Bool {
         defaults.object(forKey: Self.nextWordPredictionsKey) == nil
-            ? true
+            ? false
             : defaults.bool(forKey: Self.nextWordPredictionsKey)
     }
 

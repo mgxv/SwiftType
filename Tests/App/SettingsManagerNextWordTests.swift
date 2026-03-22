@@ -21,9 +21,9 @@ import XCTest
 
     // MARK: - Default Value
 
-    func testDefaultIsTrue() {
-        XCTAssertTrue(manager.isNextWordPredictionsEnabled,
-                      "Next-word predictions should be enabled by default")
+    func testDefaultIsFalse() {
+        XCTAssertFalse(manager.isNextWordPredictionsEnabled,
+                       "Next-word predictions should be disabled by default")
     }
 
     // MARK: - Persistence
@@ -56,10 +56,10 @@ import XCTest
         ) { _ in counter.increment() }
         defer { NotificationCenter.default.removeObserver(token) }
 
-        manager.setNextWordPredictionsEnabled(false)
+        manager.setNextWordPredictionsEnabled(true)
         XCTAssertEqual(counter.count, 1)
 
-        manager.setNextWordPredictionsEnabled(true)
+        manager.setNextWordPredictionsEnabled(false)
         XCTAssertEqual(counter.count, 2)
     }
 
@@ -71,7 +71,7 @@ import XCTest
         ) { _ in counter.increment() }
         defer { NotificationCenter.default.removeObserver(token) }
 
-        manager.setNextWordPredictionsEnabled(true)
+        manager.setNextWordPredictionsEnabled(false)
         XCTAssertEqual(counter.count, 0,
                        "Setting to the current value should not post a notification")
     }
