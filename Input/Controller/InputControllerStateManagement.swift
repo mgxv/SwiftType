@@ -37,6 +37,12 @@ extension InputController {
         strategy.refreshLanguage()
     }
 
+    @objc func nextWordSettingChanged() {
+        if !SettingsManager.shared.isNextWordPredictionsEnabled {
+            cancelPredictions()
+        }
+    }
+
     func cancelPredictions() {
         state.isNextWordMode = false
         state.currentPredictions = []

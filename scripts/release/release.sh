@@ -115,6 +115,10 @@ if [[ -n "$LOGGED_IN_USER" && "$LOGGED_IN_USER" != "root" ]]; then
         rm -rf "${USER_HOME}/Library/Saved Application State/com.matthew.inputmethod.SwiftType.savedState"
     fi
 fi
+# Remove stale /Applications symlink
+if [[ -L "/Applications/SwiftType.app" ]]; then
+    rm -f "/Applications/SwiftType.app"
+fi
 exit 0
 PREINSTALL
 chmod +x "${PKG_SCRIPTS}/preinstall"
@@ -150,6 +154,10 @@ chown -R "${LOGGED_IN_USER}:staff" "${DEST}"
 rm -rf "${STAGING_DIR}"
 
 echo "SwiftType installed to: ${DEST}"
+
+# Create /Applications symlink so SwiftType appears in Finder and Launchpad
+ln -sf "${DEST}" "/Applications/SwiftType.app"
+echo "Symlink created: /Applications/SwiftType.app → ${DEST}"
 POSTINSTALL
 chmod +x "${PKG_SCRIPTS}/postinstall"
 

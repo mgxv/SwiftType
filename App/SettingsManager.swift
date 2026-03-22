@@ -90,6 +90,22 @@ struct AppInputSourceMapping: Codable, Equatable, Sendable {
         save()
     }
 
+    // MARK: - Next Word Predictions
+
+    private static let nextWordPredictionsKey = "general.nextWordPredictionsEnabled"
+
+    var isNextWordPredictionsEnabled: Bool {
+        defaults.object(forKey: Self.nextWordPredictionsKey) == nil
+            ? true
+            : defaults.bool(forKey: Self.nextWordPredictionsKey)
+    }
+
+    func setNextWordPredictionsEnabled(_ enabled: Bool) {
+        guard enabled != isNextWordPredictionsEnabled else { return }
+        defaults.set(enabled, forKey: Self.nextWordPredictionsKey)
+        NotificationCenter.default.post(name: .nextWordPredictionsSettingDidChange, object: nil)
+    }
+
     // MARK: - Private
 
     /// Persists the current mappings array to UserDefaults without posting a notification.
