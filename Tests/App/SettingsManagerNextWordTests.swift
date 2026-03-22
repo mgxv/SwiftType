@@ -62,4 +62,17 @@ import XCTest
         manager.setNextWordPredictionsEnabled(true)
         XCTAssertEqual(counter.count, 2)
     }
+
+    func testNoNotificationWhenValueUnchanged() {
+        let counter = NotificationCounter()
+        let token = NotificationCenter.default.addObserver(
+            forName: .nextWordPredictionsSettingDidChange,
+            object: nil, queue: nil,
+        ) { _ in counter.increment() }
+        defer { NotificationCenter.default.removeObserver(token) }
+
+        manager.setNextWordPredictionsEnabled(true)
+        XCTAssertEqual(counter.count, 0,
+                       "Setting to the current value should not post a notification")
+    }
 }

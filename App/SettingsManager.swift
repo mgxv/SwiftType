@@ -101,6 +101,7 @@ struct AppInputSourceMapping: Codable, Equatable, Sendable {
     }
 
     func setNextWordPredictionsEnabled(_ enabled: Bool) {
+        guard enabled != isNextWordPredictionsEnabled else { return }
         defaults.set(enabled, forKey: Self.nextWordPredictionsKey)
         NotificationCenter.default.post(name: .nextWordPredictionsSettingDidChange, object: nil)
     }
