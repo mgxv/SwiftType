@@ -75,17 +75,28 @@ APP_PATH="${BUILD_DIR}/${APP_NAME}.app"
 [[ -d "${APP_PATH}" ]] || die ".app not found at ${APP_PATH}. Check xcodebuild output above."
 info "Built: ${APP_PATH}"
 
-# ── Step 4: Verify signing ────────────────────────────────────────────────────
+# ── Step 4: Stamp version into app bundle ────────────────────────────────────
+# The Xcode build phase sets a UTC timestamp; override it with the release version.
+step "Setting version to ${VERSION}"
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${VERSION}" "${APP_PATH}/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${VERSION}" "${APP_PATH}/Contents/Info.plist"
+info "Version stamped."
+
+# Re-sign after modifying the plist (invalidates the previous signature).
+codesign --force --sign - --deep "${APP_PATH}"
+info "Re-signed."
+
+# ── Step 5: Verify signing ────────────────────────────────────────────────────
 step "Verifying signature"
 codesign --verify --deep --strict "${APP_PATH}" && info "Signature verified." \
     || die "Signature verification failed."
 
-# ── Step 5: Stage PKG payload ─────────────────────────────────────────────────
+# ── Step 6: Stage PKG payload ─────────────────────────────────────────────────
 step "Staging PKG payload"
 cp -R "${APP_PATH}" "${PKG_ROOT}/${APP_NAME}.app"
 info "Staged."
 
-# ── Step 6: Disable bundle relocation ────────────────────────────────────────
+# ── Step 7: Disable bundle relocation ────────────────────────────────────────
 step "Configuring bundle options"
 # pkgbuild records the original build path and will "relocate" the bundle to
 # any matching path on the install target. Disabling relocation ensures the
@@ -94,7 +105,7 @@ pkgbuild --analyze --root "${PKG_ROOT}" "${COMPONENT_PLIST}"
 /usr/libexec/PlistBuddy -c "Set :0:BundleIsRelocatable false" "${COMPONENT_PLIST}"
 info "Relocation disabled."
 
-# ── Step 7: Write installer scripts ───────────────────────────────────────────
+# ── Step 8: Write installer scripts ───────────────────────────────────────────
 step "Writing installer scripts"
 
 # preinstall — remove any stale user-level installation before the payload lands.
@@ -163,7 +174,7 @@ chmod +x "${PKG_SCRIPTS}/postinstall"
 
 info "Scripts written."
 
-# ── Step 8: Build PKG ─────────────────────────────────────────────────────────
+# ── Step 9: Build PKG ─────────────────────────────────────────────────────────
 step "Building PKG → ${PKG_NAME}"
 pkgbuild \
     --root "${PKG_ROOT}" \
