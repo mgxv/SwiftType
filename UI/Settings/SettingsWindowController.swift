@@ -404,7 +404,7 @@ import UniformTypeIdentifiers
         label.font = .systemFont(ofSize: Layout.headerFontSize)
         label.alignment = .right
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.widthAnchor.constraint(equalToConstant: Layout.rowLabelWidth).isActive = true
+        label.widthAnchor.constraint(greaterThanOrEqualToConstant: Layout.rowLabelWidth).isActive = true
         return label
     }
 
