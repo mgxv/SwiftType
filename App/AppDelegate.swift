@@ -31,6 +31,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         inputSourceSwitcher = InputSourceSwitcher()
     }
 
+    func applicationShouldHandleReopen(_: NSApplication, hasVisibleWindows _: Bool) -> Bool {
+        SettingsWindowController.shared.showWindow()
+        return true
+    }
+
     func applicationWillTerminate(_: Notification) {
         Log.appDelegate.info("Application terminating")
     }
