@@ -29,7 +29,7 @@ extension SettingsWindowController {
         toggle.state = SettingsManager.shared.isNextWordPredictionsEnabled ? .on : .off
         toggle.translatesAutoresizingMaskIntoConstraints = false
         nextWordPredictionsToggle = toggle
-        return makeSettingsRow(label: "Next Word Suggestions", control: toggle)
+        return makeSettingsRow(label: "Next Word Predictions (experimental)", control: toggle)
     }
 
     // MARK: - Actions
