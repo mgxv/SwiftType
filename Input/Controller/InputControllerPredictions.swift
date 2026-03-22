@@ -23,6 +23,7 @@ extension InputController {
     }
 
     func triggerNextWordPredictions(client: any IMKTextInput) {
+        guard SettingsManager.shared.isNextWordPredictionsEnabled else { return }
         let nextWords = strategy.nextWordPredictions(
             context: state.typingContext,
             limit: Constants.gridInitialPageSize,
