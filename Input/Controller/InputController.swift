@@ -12,7 +12,7 @@ import os
 /// | File / Type | Responsibility |
 /// |---|---|
 /// | `InputControllerLifecycle` | IMK overrides: `activateServer`, `deactivateServer`, `composedString`, … |
-/// | `InputControllerStateManagement` | `resetState`, `refreshRules`, `cancelPredictions` |
+/// | `InputControllerStateManagement` | `resetState`, `refreshRules`, `cancelPredictions`, `nextWordSettingChanged` |
 /// | `InputControllerPredictions` | `updatePredictions`, `triggerNextWordPredictions`, `fetchMorePredictions` |
 /// | `InputControllerKeyHandling` | `handle(_:client:)` and shared per-key handlers (backspace, escape, arrows) |
 /// | `InputControllerComposition` | `commitCompositionBuffer`, `commitWord`, `selectCandidateByIndex`, marked text |
@@ -82,6 +82,12 @@ class InputController: IMKInputController {
             self,
             selector: #selector(refreshRules),
             name: .activePredictionLanguageDidChange,
+            object: nil,
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(nextWordSettingChanged),
+            name: .nextWordPredictionsSettingDidChange,
             object: nil,
         )
     }

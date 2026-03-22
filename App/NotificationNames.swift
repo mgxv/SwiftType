@@ -5,4 +5,5 @@ extension Notification.Name {
     static let appMappingsDidChange = Notification.Name("appMappingsDidChange")
     static let languagesDidChange = Notification.Name("languagesDidChange")
     static let activePredictionLanguageDidChange = Notification.Name("activePredictionLanguageDidChange")
+    static let nextWordPredictionsSettingDidChange = Notification.Name("nextWordPredictionsSettingDidChange")
 }

@@ -9,7 +9,7 @@ extension NSColor {
             srgbRed: CGFloat((value >> 16) & 0xFF) / 255,
             green: CGFloat((value >> 8) & 0xFF) / 255,
             blue: CGFloat(value & 0xFF) / 255,
-            alpha: 1
+            alpha: 1,
         )
     }
 

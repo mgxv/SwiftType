@@ -4,9 +4,10 @@ import UniformTypeIdentifiers
 // MARK: - SettingsWindowController
 
 //
-// Coordinator for the four-tab Settings window. Each tab's UI-building code,
+// Coordinator for the five-tab Settings window. Each tab's UI-building code,
 // action handlers, and table-view data live in a companion extension file:
 //
+//   SettingsWindowController+General.swift       — General tab
 //   SettingsWindowController+Keyboards.swift     — Keyboards tab
 //   SettingsWindowController+Languages.swift     — Languages tab
 //   SettingsWindowController+Customization.swift — Customization tab
@@ -22,6 +23,7 @@ import UniformTypeIdentifiers
     // MARK: - Toolbar Tab Definition
 
     enum Tab: String, CaseIterable {
+        case general
         case keyboards
         case languages
         case customization
@@ -29,6 +31,7 @@ import UniformTypeIdentifiers
 
         var title: String {
             switch self {
+            case .general: "General"
             case .keyboards: "Keyboards"
             case .languages: "Languages"
             case .customization: "Customization"
@@ -38,6 +41,7 @@ import UniformTypeIdentifiers
 
         var icon: String {
             switch self {
+            case .general: "gearshape"
             case .keyboards: "keyboard"
             case .languages: "character.book.closed"
             case .customization: "paintbrush"
@@ -61,9 +65,12 @@ import UniformTypeIdentifiers
     var candidateCountPopUp: NSPopUpButton!
     var gridRowsPopUp: NSPopUpButton!
 
+    var generalPane: NSView?
     var keyboardsPane: NSView?
     var customizationPane: NSView?
     var aboutPane: NSView?
+
+    var nextWordPredictionsToggle: NSSwitch?
 
     var languagesPane: NSView?
     var languageTableView: NSTableView?
@@ -101,12 +108,13 @@ import UniformTypeIdentifiers
         self.init(window: window)
         window.delegate = self
         setupToolbar()
-        selectTab(.keyboards, animate: false)
+        selectTab(.general, animate: false)
         observeNotifications()
     }
 
     func showWindow() {
         reloadTable()
+        if generalPane != nil { syncGeneralControls() }
         if customizationPane != nil { syncCustomizationControls() }
         NSApp.setActivationPolicy(.regular)
         window?.collectionBehavior = .canJoinAllSpaces
@@ -138,7 +146,7 @@ import UniformTypeIdentifiers
         let toolbar = NSToolbar(identifier: "SettingsToolbar")
         toolbar.delegate = self
         toolbar.displayMode = .iconAndLabel
-        toolbar.selectedItemIdentifier = Tab.keyboards.toolbarIdentifier
+        toolbar.selectedItemIdentifier = Tab.general.toolbarIdentifier
         window?.toolbar = toolbar
     }
 
@@ -175,6 +183,11 @@ import UniformTypeIdentifiers
         let paneView: NSView
         let paneHeight: CGFloat
         switch tab {
+        case .general:
+            if generalPane == nil { generalPane = makeGeneralTab() }
+            paneView = generalPane!
+            paneView.layoutSubtreeIfNeeded()
+            paneHeight = paneView.fittingSize.height
         case .keyboards:
             if keyboardsPane == nil { keyboardsPane = makeKeyboardsTab() }
             paneView = keyboardsPane!
