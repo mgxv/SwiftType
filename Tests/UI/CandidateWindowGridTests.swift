@@ -4,7 +4,7 @@ import XCTest
 
 /// Tests for the CandidateWindow lazy-loading signal and prediction buffer update.
 ///
-/// `predictionsNeededCountForDownArrow()` is the sole entry point through which
+/// `needsMorePredictionsForDownArrow()` is the sole entry point through which
 /// `InputController` decides whether to fetch more predictions before expanding the
 /// grid. This critical path had zero test coverage before these tests were added.
 ///
@@ -26,62 +26,54 @@ import XCTest
         CandidateWindow.shared.show(candidates: candidates, literalText: literal, client: nil)
     }
 
-    // MARK: - predictionsNeededCountForDownArrow — nil when hidden
+    // MARK: - needsMorePredictionsForDownArrow — false when hidden
 
-    func testPredictionsNeededNilWhenHidden() {
-        // gridState == nil after hide() — the function must return nil.
-        XCTAssertNil(CandidateWindow.shared.predictionsNeededCountForDownArrow())
+    func testNeedsMorePredictionsFalseWhenHidden() {
+        // gridState == nil after hide() — the function must return false.
+        XCTAssertFalse(CandidateWindow.shared.needsMorePredictionsForDownArrow())
     }
 
-    // MARK: - predictionsNeededCountForDownArrow — no literal
+    // MARK: - needsMorePredictionsForDownArrow — no literal
 
     /// With C=5, hasLiteral=false, activeRow=0:
-    ///   nextRow = 1, targetRow = 3
-    ///   maxIdx = maxPredictionIndexNeeded(throughRow:3, noLiteral) = (3+1)*5 - 1 = 19
-    ///   Need ≥ 20 predictions for the buffer to cover the prefetch window.
-    func testPredictionsNeededReturnsFetchCountWhenBufferIsTooShort() {
-        // 5 predictions loaded — nowhere near the 20 needed to cover prefetch to row 3.
+    ///   targetRow = 0 + 2 = 2
+    ///   maxIdx = maxPredictionIndexNeeded(throughRow:2) = (2+1)*5 - 1 = 14
+    ///   Need ≥ 15 predictions for the buffer to cover the prefetch window.
+    func testNeedsMorePredictionsTrueWhenBufferIsTooShort() {
+        // 5 predictions loaded — nowhere near the 15 needed to cover prefetch to row 2.
         show(candidates: Array(repeating: "word", count: 5), literal: nil)
-        let needed = CandidateWindow.shared.predictionsNeededCountForDownArrow()
-        XCTAssertNotNil(needed)
-        XCTAssertEqual(needed, 20,
-                       "Should request 20 predictions (maxIdx=19, return maxIdx+1)")
+        XCTAssertTrue(CandidateWindow.shared.needsMorePredictionsForDownArrow())
     }
 
-    func testPredictionsNeededNilWhenBufferCoversPreFetch() {
-        // 20 predictions covers rows 0-3 fully (maxIdx = 19, 19 < 20 is false → nil).
-        show(candidates: Array(repeating: "word", count: 20), literal: nil)
-        XCTAssertNil(CandidateWindow.shared.predictionsNeededCountForDownArrow(),
-                     "Buffer already covers the prefetch window — no fetch needed")
+    func testNeedsMorePredictionsFalseWhenBufferCoversPreFetch() {
+        // 15 predictions covers rows 0-2 fully (maxIdx = 14, 14 < 15 → false).
+        show(candidates: Array(repeating: "word", count: 15), literal: nil)
+        XCTAssertFalse(CandidateWindow.shared.needsMorePredictionsForDownArrow(),
+                       "Buffer already covers the prefetch window — no fetch needed")
     }
 
-    func testPredictionsNeededBoundary19ReturnsCount() {
-        // 19 predictions: maxIdx=19, 19 >= 19 → must fetch.
-        show(candidates: Array(repeating: "word", count: 19), literal: nil)
-        let needed = CandidateWindow.shared.predictionsNeededCountForDownArrow()
-        XCTAssertNotNil(needed)
-        XCTAssertEqual(needed, 20)
+    func testNeedsMorePredictionsBoundary14ReturnsTrue() {
+        // 14 predictions: maxIdx=14, 14 >= 14 → must fetch.
+        show(candidates: Array(repeating: "word", count: 14), literal: nil)
+        XCTAssertTrue(CandidateWindow.shared.needsMorePredictionsForDownArrow())
     }
 
-    // MARK: - predictionsNeededCountForDownArrow — with literal
+    // MARK: - needsMorePredictionsForDownArrow — with literal
 
     /// With C=5, hasLiteral=true, activeRow=0:
-    ///   nextRow = 1, targetRow = 3
+    ///   targetRow = 0 + 2 = 2
     ///   Unified array = ["hel"] + 5 words = 6 items.
-    ///   maxIdx = maxPredictionIndexNeeded(throughRow:3) = (3+1)*5 - 1 = 19
-    ///   19 >= 6 → need 20 items in unified array (literal + 19 words).
-    func testPredictionsNeededWithLiteralReturnsFetchCount() {
+    ///   maxIdx = maxPredictionIndexNeeded(throughRow:2) = (2+1)*5 - 1 = 14
+    ///   14 >= 6 → needs more predictions.
+    func testNeedsMorePredictionsWithLiteralTrue() {
         show(candidates: Array(repeating: "word", count: 5), literal: "hel")
-        let needed = CandidateWindow.shared.predictionsNeededCountForDownArrow()
-        XCTAssertNotNil(needed)
-        XCTAssertEqual(needed, 20,
-                       "With literal, unified maxIdx=19 so return 20")
+        XCTAssertTrue(CandidateWindow.shared.needsMorePredictionsForDownArrow())
     }
 
-    func testPredictionsNeededWithLiteralNilWhenCovered() {
-        // Unified array = ["hel"] + 19 words = 20 items; maxIdx=19, 19 < 20 → nil.
-        show(candidates: Array(repeating: "word", count: 19), literal: "hel")
-        XCTAssertNil(CandidateWindow.shared.predictionsNeededCountForDownArrow())
+    func testNeedsMorePredictionsWithLiteralFalseWhenCovered() {
+        // Unified array = ["hel"] + 14 words = 15 items; maxIdx=14, 14 < 15 → false.
+        show(candidates: Array(repeating: "word", count: 14), literal: "hel")
+        XCTAssertFalse(CandidateWindow.shared.needsMorePredictionsForDownArrow())
     }
 
     // MARK: - updatePredictions — replaces buffer without resetting navigation
@@ -168,26 +160,24 @@ import XCTest
                        "Col 1 after update must be 'world' — the new batch — not the literal 'hel'")
     }
 
-    // MARK: - predictionsNeededCountForDownArrow after row navigation
+    // MARK: - needsMorePredictionsForDownArrow after row navigation
 
-    func testPredictionsNeededUpdatesAfterMovingDown() {
+    func testNeedsMorePredictionsUpdatesAfterMovingDown() {
         // Show enough to expand but not enough to pre-fill far ahead.
-        // With 20 predictions (no literal), initial check returns nil (fully covered).
+        // With 15 predictions (no literal), initial check returns false (fully covered).
         // After expanding row down once (activeRow moves from 0 to 1):
-        //   nextRow = 2, targetRow = 4
-        //   maxIdx (noLiteral, row 4) = (4+1)*5 - 1 = 24
-        //   20 < 25 → should now require a fetch of 25.
-        show(candidates: Array(repeating: "word", count: 20), literal: nil)
-        // Initial check: covered (row 0 → prefetch to row 3 costs ≤ 20 preds).
-        XCTAssertNil(CandidateWindow.shared.predictionsNeededCountForDownArrow())
+        //   targetRow = 1 + 2 = 3
+        //   maxIdx (noLiteral, row 3) = (3+1)*5 - 1 = 19
+        //   19 >= 15 → should now need a fetch.
+        show(candidates: Array(repeating: "word", count: 15), literal: nil)
+        // Initial check: covered (row 0 → prefetch to row 2 costs ≤ 15 preds).
+        XCTAssertFalse(CandidateWindow.shared.needsMorePredictionsForDownArrow())
 
         // Expand grid (first Down press): isExpanded = true, activeRow stays 0.
         CandidateWindow.shared.moveActiveRowDown()
-        // Second Down press would move activeRow to 1 — check again.
+        // Second Down press moves activeRow to 1 — check again.
         CandidateWindow.shared.moveActiveRowDown() // activeRow = 1
-        let needed = CandidateWindow.shared.predictionsNeededCountForDownArrow()
-        XCTAssertNotNil(needed)
-        XCTAssertEqual(needed, 25,
-                       "After moving to row 1, prefetch window extends to row 4 (maxIdx=24, return 25)")
+        XCTAssertTrue(CandidateWindow.shared.needsMorePredictionsForDownArrow(),
+                      "After moving to row 1, prefetch window extends to row 3 — needs more predictions")
     }
 }

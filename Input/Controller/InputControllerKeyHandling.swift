@@ -55,8 +55,8 @@ extension InputController {
 
         case .downArrow:
             return handleNavigation(client: client) {
-                if let limit = CandidateWindow.shared.predictionsNeededCountForDownArrow() {
-                    fetchMorePredictions(limit: limit)
+                if CandidateWindow.shared.needsMorePredictionsForDownArrow() {
+                    fetchMorePredictions()
                 }
                 CandidateWindow.shared.moveActiveRowDown()
             }

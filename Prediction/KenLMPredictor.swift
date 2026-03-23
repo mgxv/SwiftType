@@ -51,9 +51,18 @@ import os
         }
     }
 
-    /// Returns up to `limit` next-word predictions for the given committed context.
+    /// Returns up to `limit` next-word predictions ranked by descending n-gram probability.
+    /// `context` is the committed text preceding the cursor; all vocab words are scored.
     func nextWordPredictions(context: String, limit: Int) -> [String] {
         guard limit > 0, !context.isEmpty else { return [] }
         return KenLMBridge.shared().nextWordPredictions(context, limit: limit)
+    }
+
+    /// Returns up to `limit` predictions starting with `prefix`, ranked by descending n-gram probability.
+    /// `context` is the committed text preceding the cursor; `prefix` is the partially typed word.
+    /// Only vocab words matching the prefix are scored.
+    func prefixMatchSuggestions(context: String, prefix: String, limit: Int) -> [String] {
+        guard limit > 0, !context.isEmpty, !prefix.isEmpty else { return [] }
+        return KenLMBridge.shared().prefixMatchSuggestions(context, prefix: prefix, limit: limit)
     }
 }

@@ -52,7 +52,7 @@ import XCTest
     /// This test documents that the raw value IS stored even when out of range.
     func testSetGridColsStoresOutOfRangeValue() {
         manager.setGridCols(99)
-        let stored = defaults.integer(forKey: "theme.maxCandidates")
+        let stored = defaults.integer(forKey: "theme.gridCols")
         XCTAssertEqual(stored, 99,
                        "setGridCols stores the raw value; validation is read-time only")
     }

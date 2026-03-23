@@ -11,7 +11,7 @@ import Foundation
 /// changes to avoid unnecessary allocations. Adding a new language requires a new conformer
 /// in `Input/Strategies/` and an entry in `LanguageDescriptor.all`.
 @MainActor protocol InputStrategy: AnyObject {
-    func completions(context: String, partial: String, limit: Int) -> [String]
+    func completions(context: String, prefix: String, limit: Int) -> [String]
     func nextWordPredictions(context: String, limit: Int) -> [String]
     func refreshLanguage()
 }

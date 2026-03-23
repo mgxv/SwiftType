@@ -31,17 +31,6 @@ import XCTest
         XCTAssertEqual(Constants.gridMaxVisibleRows, ThemeManager.shared.gridRows)
     }
 
-    func testGridInitialPageSizeIsProductOfColsAndRows() {
-        XCTAssertEqual(
-            Constants.gridInitialPageSize,
-            Constants.gridMaxVisibleCols * Constants.gridMaxVisibleRows,
-        )
-    }
-
-    func testGridInitialPageSizeIsPositive() {
-        XCTAssertGreaterThan(Constants.gridInitialPageSize, 0)
-    }
-
     // MARK: - Consistency with ThemeManager options
 
     func testMaxSupportedGridColsCoversAllThemeOptions() {

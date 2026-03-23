@@ -298,4 +298,87 @@ struct ScoredWord {
     return predictions;
 }
 
+- (NSArray<NSString *> *)prefixMatchSuggestions:(NSString *)context prefix:(NSString *)prefix limit:(NSInteger)limit {
+    if (!_ready || !_model || !_vocab || limit <= 0 || context.length == 0 || prefix.length == 0) {
+        return @[];
+    }
+
+    // Tokenize context: split on whitespace, take last (order - 1) tokens.
+    NSArray<NSString *> *allTokens = [context componentsSeparatedByCharactersInSet:
+                                      [NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSMutableArray<NSString *> *tokens = [NSMutableArray array];
+    for (NSString *token in allTokens) {
+        if (token.length > 0) [tokens addObject:[token lowercaseString]];
+    }
+
+    if (tokens.count == 0) return @[];
+
+    // Keep only the last (order - 1) tokens for context.
+    unsigned int order = _model->Order();
+    NSUInteger contextLength = (order > 1) ? (order - 1) : 1;
+    if (tokens.count > contextLength) {
+        tokens = [[tokens subarrayWithRange:NSMakeRange(tokens.count - contextLength, contextLength)] mutableCopy];
+    }
+
+    // Lowercase prefix for matching against lowercase vocab words.
+    std::string cPrefix(prefix.lowercaseString.UTF8String);
+
+    const lm::ngram::Model &model = *_model;
+    const lm::ngram::Vocabulary &vocab = model.GetVocabulary();
+
+    // Build state from context tokens using NullContextState (no sentence-start bias).
+    lm::ngram::State stateA, stateB;
+    stateA = model.NullContextState();
+
+    lm::ngram::State *in = &stateA;
+    lm::ngram::State *out = &stateB;
+
+    for (NSString *token in tokens) {
+        lm::WordIndex wi = vocab.Index(token.UTF8String);
+        model.Score(*in, wi, *out);
+        std::swap(in, out);
+    }
+
+    // Score only vocab words starting with the prefix; keep top-N via min-heap.
+    std::priority_queue<ScoredWord, std::vector<ScoredWord>, std::greater<ScoredWord>> minHeap;
+
+    size_t vocabSize = _vocab->words.size();
+    for (size_t i = 0; i < vocabSize; i++) {
+        const std::string &word = _vocab->words[i];
+        if (word.size() < cPrefix.size() || word.compare(0, cPrefix.size(), cPrefix) != 0) {
+            continue;
+        }
+
+        lm::WordIndex wi = _vocab->indices[i];
+        float score = model.Score(*in, wi, *out);
+
+        if ((NSInteger)minHeap.size() < limit) {
+            minHeap.push({score, i});
+        } else if (score > minHeap.top().score) {
+            minHeap.pop();
+            minHeap.push({score, i});
+        }
+    }
+
+    // Extract results sorted by descending score.
+    std::vector<ScoredWord> results;
+    results.reserve(minHeap.size());
+    while (!minHeap.empty()) {
+        results.push_back(minHeap.top());
+        minHeap.pop();
+    }
+    std::sort(results.begin(), results.end(), [](const ScoredWord &a, const ScoredWord &b) {
+        return a.score > b.score;
+    });
+
+    NSMutableArray<NSString *> *predictions = [NSMutableArray arrayWithCapacity:results.size()];
+    for (const auto &sw : results) {
+        NSString *word = @(_vocab->words[sw.vocabIndex].c_str());
+        word = [self truecaseWord:word];
+        [predictions addObject:word];
+    }
+
+    return predictions;
+}
+
 @end
