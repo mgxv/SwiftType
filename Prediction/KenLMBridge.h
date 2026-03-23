@@ -19,10 +19,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)shared;
 
-/// Returns up to `limit` next-word predictions for the given context string,
-/// ranked by descending probability.
-/// Returns an empty array if no model is loaded or the context is empty.
+/// Returns up to `limit` next-word predictions ranked by descending n-gram probability.
+/// Scores all vocab words against the n-gram state built from `context` (committed text preceding the cursor).
+/// Returns an empty array if no model is loaded or `context` is empty.
 - (NSArray<NSString *> *)nextWordPredictions:(NSString *)context limit:(NSInteger)limit;
+
+/// Returns up to `limit` predictions whose lowercase form starts with `prefix`,
+/// ranked by descending n-gram probability.
+/// Scores only prefix-matching vocab words against the n-gram state built from `context`
+/// (committed text preceding the cursor). `prefix` is the partially typed word.
+/// Returns an empty array if no model is loaded, `context` is empty, or `prefix` is empty.
+- (NSArray<NSString *> *)prefixMatchSuggestions:(NSString *)context prefix:(NSString *)prefix limit:(NSInteger)limit;
 
 /// Switches to the model for the given BCP-47 base language code (e.g. "en", "de").
 /// Unloads the current model and loads `Resources/KenLM/{code}.binary`.

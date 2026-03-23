@@ -16,9 +16,18 @@ import Foundation
         ThemeManager.shared.gridRows
     }
 
-    /// Predictions fetched on the first call to `updatePredictions` / `triggerNextWordPredictions`.
-    /// Sized to fill the entire visible grid so lazy loading is only needed beyond the last row.
-    static var gridInitialPageSize: Int {
-        gridMaxVisibleCols * gridMaxVisibleRows
-    }
+    /// Maximum spell check results (corrections, prefix completions, fuzzy guesses) from NSSpellChecker.
+    static let spellCompletionLimit = 5
+
+    /// Maximum KenLM candidates queried during prefix-matched completion matching.
+    static let kenlmPrefixMatchLimit = 25
+
+    /// Maximum total completions returned while the user is typing (composition mode).
+    static let completionFetchLimit = 30
+
+    /// Maximum predictions fetched during lazy loading when navigating the grid.
+    static let predictionLazyLoadLimit = 20
+
+    /// Maximum next-word predictions fetched after committing a word.
+    static let predictionFetchLimit = 30
 }

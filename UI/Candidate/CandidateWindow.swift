@@ -100,8 +100,7 @@ import InputMethodKit
 
     /// Displays the candidate grid.
     ///
-    /// `candidates` is the full display-capitalised prediction buffer (up to
-    /// `Constants.gridInitialPageSize` items). When `literalText` is non-nil it is prepended
+    /// `candidates` is the full display-capitalised prediction buffer. When `literalText` is non-nil it is prepended
     /// to `candidates` in the unified predictions array so that `predictions[0]` = literal
     /// and `predictions[1…]` = word predictions. The grid starts collapsed (row 0 only).
     func show(candidates: [String], literalText: String? = nil, client: (any IMKTextInput)?) {
@@ -158,14 +157,13 @@ import InputMethodKit
 
     // MARK: - Lazy-load signal
 
-    /// Returns the minimum prediction count InputController should request before pressing Down,
-    /// or `nil` if the current buffer already covers the next row plus a two-row prefetch buffer.
-    func predictionsNeededCountForDownArrow() -> Int? {
-        guard let gs = gridState else { return nil }
-        let targetRow = gs.activeRow + 3 // next row + 2-row prefetch buffer
+    /// Whether the prediction buffer needs more items before navigating down.
+    /// True when the buffer doesn't cover the next row plus a one-row prefetch buffer.
+    func needsMorePredictionsForDownArrow() -> Bool {
+        guard let gs = gridState else { return false }
+        let targetRow = gs.activeRow + 2 // next row + 1-row prefetch buffer
         let maxIdx = gs.maxPredictionIndexNeeded(throughRow: targetRow)
-        guard maxIdx >= gs.predictions.count else { return nil }
-        return maxIdx + 1
+        return maxIdx >= gs.predictions.count
     }
 
     /// Replaces the prediction buffer with a larger batch fetched during lazy loading.

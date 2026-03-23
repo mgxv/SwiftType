@@ -11,8 +11,8 @@ extension InputController {
             return
         }
 
-        let (unified, display) = fetchCompletions(limit: Constants.gridInitialPageSize)
-        Log.inputController.info("updatePredictions — partial='\(self.state.compositionBuffer, privacy: .public)' context=\(self.state.typingContext.count, privacy: .public) chars, results=\(display.count, privacy: .public)")
+        let (unified, display) = fetchCompletions(limit: Constants.completionFetchLimit)
+        Log.inputController.info("updatePredictions — prefix='\(self.state.compositionBuffer, privacy: .public)' context=\(self.state.typingContext.count, privacy: .public) chars, results=\(display.count, privacy: .public)")
 
         state.currentPredictions = unified
         CandidateWindow.shared.show(
@@ -26,7 +26,7 @@ extension InputController {
         guard SettingsManager.shared.isNextWordPredictionsEnabled else { return }
         let nextWords = strategy.nextWordPredictions(
             context: state.typingContext,
-            limit: Constants.gridInitialPageSize,
+            limit: Constants.predictionLazyLoadLimit,
         )
         guard !nextWords.isEmpty else { return }
         state.currentPredictions = nextWords
@@ -35,15 +35,22 @@ extension InputController {
     }
 
     /// Fetches a larger prediction batch for lazy loading when the user navigates to a new grid row.
+    /// Each fetch requests enough to extend the buffer by `predictionLazyLoadLimit`, capped at
+    /// `predictionFetchLimit` (next-word) or `completionFetchLimit` (composition) total.
+    /// Skips the fetch if the total cap has been reached.
     /// Stores original-case in `state.currentPredictions` and pushes display-capitalised versions
     /// to `CandidateWindow` without resetting navigation state.
-    func fetchMorePredictions(limit: Int) {
+    func fetchMorePredictions() {
         if state.isNextWordMode {
+            let currentCount = state.currentPredictions.count
+            guard currentCount < Constants.predictionFetchLimit else { return }
+            let limit = min(currentCount + Constants.predictionLazyLoadLimit, Constants.predictionFetchLimit)
             let words = strategy.nextWordPredictions(context: state.typingContext, limit: limit)
             state.currentPredictions = words
             CandidateWindow.shared.updatePredictions(words)
         } else {
-            let (unified, display) = fetchCompletions(limit: limit)
+            guard state.currentPredictions.count <= Constants.completionFetchLimit else { return }
+            let (unified, display) = fetchCompletions(limit: Constants.completionFetchLimit)
             state.currentPredictions = unified
             CandidateWindow.shared.updatePredictions(display)
         }
@@ -65,11 +72,11 @@ extension InputController {
 
     /// Fetches completions from the strategy and returns both the unified predictions
     /// array (for `state.currentPredictions`) and the display-capitalised array (for
-    /// `CandidateWindow`). Shared by `updatePredictions` and `fetchMorePredictions`.
+    /// `CandidateWindow`).
     private func fetchCompletions(limit: Int) -> (unified: [String], display: [String]) {
         let rawWords = strategy.completions(
             context: state.typingContext,
-            partial: state.compositionBuffer,
+            prefix: state.compositionBuffer,
             limit: limit,
         )
         let unified = keyHandler.unifiedPredictions(

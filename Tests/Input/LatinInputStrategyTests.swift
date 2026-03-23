@@ -21,28 +21,28 @@ import XCTest
 
     func testCompletionsDoesNotCrashOnEmptyPartial() {
         XCTAssertNoThrow(
-            _ = strategy.completions(context: "Hello ", partial: "", limit: 5),
+            _ = strategy.completions(context: "Hello ", prefix: "", limit: 5),
         )
     }
 
     func testCompletionsDoesNotCrashOnEmptyContext() {
         XCTAssertNoThrow(
-            _ = strategy.completions(context: "", partial: "hel", limit: 5),
+            _ = strategy.completions(context: "", prefix: "hel", limit: 5),
         )
     }
 
     func testCompletionsRespectsLimit() {
-        let results = strategy.completions(context: "", partial: "th", limit: 3)
+        let results = strategy.completions(context: "", prefix: "th", limit: 3)
         XCTAssertLessThanOrEqual(results.count, 3)
     }
 
     func testCompletionsWithLimitZeroReturnsEmpty() {
-        let results = strategy.completions(context: "", partial: "hello", limit: 0)
+        let results = strategy.completions(context: "", prefix: "hello", limit: 0)
         XCTAssertEqual(results.count, 0)
     }
 
     func testCompletionsResultsAreNonEmpty() {
-        let results = strategy.completions(context: "", partial: "hel", limit: 10)
+        let results = strategy.completions(context: "", prefix: "hel", limit: 10)
         for word in results {
             XCTAssertFalse(word.isEmpty, "Completion must not be an empty string")
         }

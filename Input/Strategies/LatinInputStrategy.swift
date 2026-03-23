@@ -17,52 +17,41 @@
         kenlmPredictor = KenLMPredictor()
     }
 
-    func completions(context: String, partial: String, limit: Int) -> [String] {
-        let spellResults = spellPredictor.completions(context: context, partial: partial, limit: limit)
+    func completions(context: String, prefix: String, limit: Int) -> [String] {
+        let spellResults = spellPredictor.completions(context: context, prefix: prefix, limit: Constants.spellCompletionLimit)
 
         // Skip KenLM context matching for very short prefixes (too broad)
         // or when there is no prior context to score against.
-        let prefix = partial.lowercased()
-        guard prefix.count >= 2, !context.isEmpty else { return spellResults }
+        let lowercasedPrefix = prefix.lowercased()
+        guard !lowercasedPrefix.isEmpty, !context.isEmpty else { return spellResults }
 
-        // Query KenLM for context-aware completions: get next-word predictions
-        // and filter to those matching the typed prefix.  These are ranked by
-        // n-gram probability in context (e.g. "store" after "went to the").
-        // Request a large batch since most predictions won't match the prefix.
-        let kenlmWords = kenlmPredictor.nextWordPredictions(context: context, limit: 50)
-        let contextMatches = kenlmWords.filter { $0.lowercased().hasPrefix(prefix) }
+        // Query KenLM for context-aware completions matching the typed prefix,
+        // ranked by n-gram probability (e.g. "store" after "went to the st").
+        let prefixMatches = kenlmPredictor.prefixMatchSuggestions(context: context, prefix: lowercasedPrefix, limit: Constants.kenlmPrefixMatchLimit)
 
-        guard !contextMatches.isEmpty else { return spellResults }
+        guard !prefixMatches.isEmpty else { return spellResults }
 
-        // Merge: spell correction first (most important for typos), then KenLM
-        // context matches (contextually ranked), then remaining spell completions.
+        // Merge: KenLM context matches first (contextually ranked), then spell results.
+        // KenLM matches are ranked by how likely they follow the preceding context,
+        // making them more relevant than dictionary-based spell corrections which
+        // ignore context entirely (e.g. "much" after "I love you very" vs "Mac").
         var seen = Set<String>()
         var merged: [String] = []
 
-        // 1. Keep the spell correction at the top if it exists and differs
-        //    from a simple prefix completion (it's a real typo fix).
-        if let correction = spellResults.first,
-           correction.lowercased() != prefix,
-           !correction.lowercased().hasPrefix(prefix)
-        {
-            merged.append(correction)
-            seen.insert(correction.lowercased())
-        }
-
-        // 2. KenLM context matches (ranked by n-gram probability).
-        for word in contextMatches {
+        // 1. KenLM prefix matches (ranked by n-gram probability in context).
+        for word in prefixMatches {
             guard merged.count < limit else { break }
             let lower = word.lowercased()
-            if lower != prefix, seen.insert(lower).inserted {
+            if lower != lowercasedPrefix, seen.insert(lower).inserted {
                 merged.append(word)
             }
         }
 
-        // 3. Fill remaining slots with spell completions.
+        // 2. Fill remaining slots with spell completions.
         for word in spellResults {
             guard merged.count < limit else { break }
             let lower = word.lowercased()
-            if lower != prefix, seen.insert(lower).inserted {
+            if lower != lowercasedPrefix, seen.insert(lower).inserted {
                 merged.append(word)
             }
         }

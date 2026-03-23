@@ -116,7 +116,7 @@ import XCTest
     // MARK: - gridCols validation
 
     func testGridColsFallsBackToDefaultForInvalidValue() {
-        defaults.set(999, forKey: "theme.maxCandidates")
+        defaults.set(999, forKey: "theme.gridCols")
         let m = ThemeManager(defaults: defaults)
         XCTAssertEqual(m.gridCols, ThemeManager.defaultGridCols)
     }

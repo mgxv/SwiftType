@@ -50,7 +50,7 @@ enum ThemeColorKey: String, CaseIterable, Sendable {
 
     private enum Keys {
         static let highlightOpacity = "theme.highlightTransparency" // key string preserved for backwards compat
-        static let gridCols = "theme.maxCandidates"
+        static let gridCols = "theme.gridCols"
         static let gridRows = "theme.gridRows"
     }
 

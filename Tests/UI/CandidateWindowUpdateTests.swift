@@ -72,25 +72,23 @@ import XCTest
         XCTAssertEqual(CandidateWindow.shared.selectedCandidate(), "new1")
     }
 
-    // MARK: - predictionsNeededCountForDownArrow
+    // MARK: - needsMorePredictionsForDownArrow
 
-    func testPredictionsNeededReturnsNilWhenHidden() {
-        XCTAssertNil(CandidateWindow.shared.predictionsNeededCountForDownArrow())
+    func testNeedsMorePredictionsReturnsFalseWhenHidden() {
+        XCTAssertFalse(CandidateWindow.shared.needsMorePredictionsForDownArrow())
     }
 
-    func testPredictionsNeededReturnsNilWhenBufferSufficient() {
-        // Show enough predictions to cover row 0 + down + 2-row prefetch at C=5
-        // That's row 3 max index = (3+1)*5 - 1 = 19, so 20 predictions needed
+    func testNeedsMorePredictionsReturnsFalseWhenBufferSufficient() {
+        // Show enough predictions to cover row 0 + down + 1-row prefetch at C=5
+        // That's row 2 max index = (2+1)*5 - 1 = 14, so 15 predictions needed
         CandidateWindow.shared.show(candidates: (0 ..< 20).map { "p\($0)" }, client: nil)
-        XCTAssertNil(CandidateWindow.shared.predictionsNeededCountForDownArrow())
+        XCTAssertFalse(CandidateWindow.shared.needsMorePredictionsForDownArrow())
     }
 
-    func testPredictionsNeededReturnsCountWhenInsufficient() throws {
-        // Only 5 predictions (1 row at C=5). Down needs row 3 coverage.
+    func testNeedsMorePredictionsReturnsTrueWhenInsufficient() {
+        // Only 5 predictions (1 row at C=5). Down needs row 2 coverage.
         CandidateWindow.shared.show(candidates: (0 ..< 5).map { "p\($0)" }, client: nil)
-        let needed = CandidateWindow.shared.predictionsNeededCountForDownArrow()
-        XCTAssertNotNil(needed)
-        XCTAssertGreaterThan(try XCTUnwrap(needed), 5)
+        XCTAssertTrue(CandidateWindow.shared.needsMorePredictionsForDownArrow())
     }
 
     // MARK: - isLiteralAt edge cases
