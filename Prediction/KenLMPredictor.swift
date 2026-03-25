@@ -51,11 +51,15 @@ import os
         }
     }
 
+    /// Extra results to request from KenLMBridge to compensate for spell-check filtering.
+    private static let filterBuffer = 20
+
     /// Returns up to `limit` next-word predictions ranked by descending n-gram probability.
     /// `context` is the committed text preceding the cursor; all vocab words are scored.
     func nextWordPredictions(context: String, limit: Int) -> [String] {
         guard limit > 0, !context.isEmpty else { return [] }
-        return KenLMBridge.shared().nextWordPredictions(context, limit: limit)
+        let raw = KenLMBridge.shared().nextWordPredictions(context, limit: limit + Self.filterBuffer)
+        return Array(filterBySpelling(raw).prefix(limit))
     }
 
     /// Returns up to `limit` predictions starting with `prefix`, ranked by descending n-gram probability.
@@ -63,6 +67,24 @@ import os
     /// Only vocab words matching the prefix are scored.
     func prefixMatchSuggestions(context: String, prefix: String, limit: Int) -> [String] {
         guard limit > 0, !context.isEmpty, !prefix.isEmpty else { return [] }
-        return KenLMBridge.shared().prefixMatchSuggestions(context, prefix: prefix, limit: limit)
+        let raw = KenLMBridge.shared().prefixMatchSuggestions(context, prefix: prefix, limit: limit + Self.filterBuffer)
+        return Array(filterBySpelling(raw).prefix(limit))
+    }
+
+    /// Removes words that NSSpellChecker considers misspelled.
+    private func filterBySpelling(_ words: [String]) -> [String] {
+        let checker = NSSpellChecker.shared
+        let language = LanguageManager.shared.effectiveLanguage
+        return words.filter { word in
+            let range = checker.checkSpelling(
+                of: word,
+                startingAt: 0,
+                language: language,
+                wrap: false,
+                inSpellDocumentWithTag: 0,
+                wordCount: nil,
+            )
+            return range.location == NSNotFound
+        }
     }
 }
