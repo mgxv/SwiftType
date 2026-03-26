@@ -1,7 +1,7 @@
 # SwiftType
 
 <div align="center">
-  <video src="https://github.com/user-attachments/assets/PLACEHOLDER" autoplay loop muted playsinline style="border-radius: 12px; max-width: 70%;"></video>
+  <video src="https://github.com/user-attachments/assets/bb9309b7-04db-4df1-b92d-6a006ac32361" autoplay loop muted playsinline style="border-radius: 12px; max-width: 70%;"></video>
 </div>
 
 A native macOS input method that predicts what you're typing — and what you'll type next. It shows a floating candidate bar below your cursor with word completions, spelling corrections, and next-word suggestions, all running locally with no network calls.
