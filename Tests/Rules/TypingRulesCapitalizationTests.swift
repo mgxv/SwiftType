@@ -48,7 +48,7 @@ import XCTest
         XCTAssertEqual(result, "one")
     }
 
-    // MARK: - applyCapitalization delegates to preserveCapitalization
+    // MARK: - applyCapitalization
 
     func testApplyCapitalizationUppercaseOriginalUppercases() {
         let result = EnglishTypingRules.shared.applyCapitalization(

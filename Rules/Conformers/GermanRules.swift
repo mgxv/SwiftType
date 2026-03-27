@@ -1,15 +1,16 @@
 /// German-specific `TypingRules` conformance.
 ///
 /// Supplies the three character sets that drive auto-space removal, composition-buffer
-/// continuation, and sentence-boundary detection. Both protocol methods
+/// continuation, and sentence-boundary detection. Both capitalisation methods
 /// (`preserveCapitalization`, `applyCapitalization`) are inherited from the default
-/// implementations in `TypingRules`.
+/// implementations in `TypingRules`. `applyCapitalization` uses `sentenceEndingChars`
+/// to auto-capitalise suggestions at sentence start.
 ///
 /// Key differences from English:
 /// - Closing double-quote is U+201C " (German „text") rather than U+201D "
 /// - Closing guillemet is U+00AB « (Swiss-style »text«) rather than U+00BB »
 /// - Apostrophes still continue composition for informal contractions (e.g. "geht's")
-/// - Both capitalisation methods are inherited from the protocol defaults
+/// - `:` in `sentenceEndingChars` triggers auto-capitalisation after colons
 struct GermanTypingRules: TypingRules, Sendable {
     static let shared = GermanTypingRules()
 

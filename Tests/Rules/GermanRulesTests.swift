@@ -120,7 +120,7 @@ import XCTest
                        "German compositionContinuationMarks must contain exactly 3 characters")
     }
 
-    // MARK: - applyCapitalization — via protocol default (preserveCapitalization)
+    // MARK: - applyCapitalization — via protocol default
 
     func testApplyCapitalizationUppercaseOriginalPreservesCase() {
         let result = rules.applyCapitalization(original: "Es", suggested: "er", context: "Er sagte: ")
@@ -132,8 +132,8 @@ import XCTest
         XCTAssertEqual(result, "haus")
     }
 
-    func testApplyCapitalizationLowercaseOriginalStaysLowercase() {
+    func testApplyCapitalizationLowercaseOriginalAtSentenceStartCapitalises() {
         let result = rules.applyCapitalization(original: "er", suggested: "er", context: "Toll! ")
-        XCTAssertEqual(result, "er")
+        XCTAssertEqual(result, "Er", "Sentence start after '!' → auto-capitalise")
     }
 }

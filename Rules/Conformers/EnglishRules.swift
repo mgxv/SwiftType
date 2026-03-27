@@ -1,9 +1,10 @@
 /// English-specific `TypingRules` conformance.
 ///
 /// Supplies the three character sets that drive auto-space removal, composition-buffer
-/// continuation (contractions), and sentence-boundary detection. Both protocol
-/// methods (`preserveCapitalization`, `applyCapitalization`) are inherited from
-/// the default implementations in `TypingRules`.
+/// continuation (contractions), and sentence-boundary detection. Both capitalisation
+/// methods (`preserveCapitalization`, `applyCapitalization`) are inherited from the
+/// default implementations in `TypingRules`. `applyCapitalization` uses
+/// `sentenceEndingChars` to auto-capitalise suggestions at sentence start.
 struct EnglishTypingRules: TypingRules, Sendable {
     static let shared = EnglishTypingRules()
 

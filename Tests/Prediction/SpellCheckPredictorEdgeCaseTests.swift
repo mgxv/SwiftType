@@ -101,13 +101,6 @@ import XCTest
         )
     }
 
-    func testNextWordPredictionsDoNotCrashOnVeryLongContext() {
-        let longContext = String(repeating: "word ", count: 500)
-        XCTAssertNoThrow(
-            _ = predictor.nextWordPredictions(context: longContext, limit: 5),
-        )
-    }
-
     // MARK: - refreshLanguage
 
     func testRefreshLanguageDoesNotCrash() {

@@ -50,8 +50,8 @@ import XCTest
     // MARK: - Crash safety on edge inputs
 
     func testCompletionsDoesNotCrashOnEmptyPartial() {
-        // An empty partial produces a zero-length range at the end of context — same
-        // geometry as nextWordPredictions.  The important thing is no crash.
+        // An empty partial produces a zero-length range at the end of context.
+        // The important thing is no crash.
         XCTAssertNoThrow(
             _ = predictor.completions(context: "some context ", prefix: "", limit: 5),
         )
@@ -66,12 +66,6 @@ import XCTest
     func testCompletionsDoesNotCrashOnBothEmpty() {
         XCTAssertNoThrow(
             _ = predictor.completions(context: "", prefix: "", limit: 5),
-        )
-    }
-
-    func testNextWordPredictionsDoesNotCrashOnEmptyContext() {
-        XCTAssertNoThrow(
-            _ = predictor.nextWordPredictions(context: "", limit: 5),
         )
     }
 
@@ -91,14 +85,6 @@ import XCTest
         }
         for word in results {
             XCTAssertFalse(word.isEmpty, "Completion result must not be an empty string")
-        }
-    }
-
-    func testNextWordPredictionsResultsAreAllNonEmptyStrings() {
-        let results = predictor.nextWordPredictions(context: "I love ", limit: 7)
-        guard !results.isEmpty else { return }
-        for word in results {
-            XCTAssertFalse(word.isEmpty, "Next-word prediction must not be an empty string")
         }
     }
 
@@ -140,15 +126,6 @@ import XCTest
         let unique = Set(lowercased)
         XCTAssertEqual(unique.count, lowercased.count,
                        "Completions must not contain duplicate words (case-insensitive): \(results)")
-    }
-
-    func testNextWordPredictionsContainNoDuplicateLowercasedWords() {
-        let results = predictor.nextWordPredictions(context: "I am going to ", limit: 7)
-        guard results.count > 1 else { return }
-        let lowercased = results.map { $0.lowercased() }
-        let unique = Set(lowercased)
-        XCTAssertEqual(unique.count, lowercased.count,
-                       "Next-word predictions must not contain duplicates: \(results)")
     }
 
     // MARK: - Multiple calls are stable
