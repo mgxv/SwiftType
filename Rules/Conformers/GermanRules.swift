@@ -37,8 +37,9 @@ struct GermanTypingRules: TypingRules, Sendable {
 
     /// Characters that mark sentence boundaries. Extends the English set with `:`
     /// because German grammar treats a colon introducing a complete sentence as a
-    /// sentence boundary (e.g. "Er sagte: Es ist schön.").
+    /// sentence boundary (e.g. "Er sagte: Es ist schön."). Includes the Unicode
+    /// ellipsis (U+2026) which macOS auto-substitutes from `...`.
     ///
-    /// This set has **4 members**; `TypingRulesEdgeCaseTests.testGermanSentenceEndingCharsExactCount` locks this in.
-    let sentenceEndingChars: Set<Character> = [".", "!", "?", ":"]
+    /// This set has **5 members**; `TypingRulesEdgeCaseTests.testGermanSentenceEndingCharsExactCount` locks this in.
+    let sentenceEndingChars: Set<Character> = [".", "!", "?", ":", "\u{2026}"]
 }

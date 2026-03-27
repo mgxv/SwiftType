@@ -27,8 +27,9 @@ struct EnglishTypingRules: TypingRules, Sendable {
     /// This set has **2 members**; `TypingRulesEdgeCaseTests.testEnglishCompositionContinuationMarksExactCount` locks this in.
     let compositionContinuationMarks: Set<Character> = ["'", "\u{2019}"]
 
-    /// Characters that mark sentence boundaries — the standard English sentence-enders.
+    /// Characters that mark sentence boundaries — the standard English sentence-enders
+    /// plus the Unicode ellipsis (U+2026) which macOS auto-substitutes from `...`.
     ///
-    /// This set has **3 members**; `TypingRulesEdgeCaseTests.testEnglishSentenceEndingCharsExactCount` locks this in.
-    let sentenceEndingChars: Set<Character> = [".", "!", "?"]
+    /// This set has **4 members**; `TypingRulesEdgeCaseTests.testEnglishSentenceEndingCharsExactCount` locks this in.
+    let sentenceEndingChars: Set<Character> = [".", "!", "?", "\u{2026}"]
 }
