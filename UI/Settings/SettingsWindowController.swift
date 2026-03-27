@@ -71,6 +71,7 @@ import UniformTypeIdentifiers
     var aboutPane: NSView?
 
     var nextWordPredictionsToggle: NSSwitch?
+    var autoCapitalizationToggle: NSSwitch?
 
     var languagesPane: NSView?
     var languageTableView: NSTableView?

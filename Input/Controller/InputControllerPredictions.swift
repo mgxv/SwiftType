@@ -87,13 +87,22 @@ extension InputController {
     }
 
     /// Maps raw (original-case) predictions to display-capitalised strings by matching
-    /// the case of the composition buffer onto each suggestion.
+    /// the case of the composition buffer onto each suggestion. When auto-capitalization
+    /// is disabled, falls back to `preserveCapitalization` (user's typed case only).
     private func displayWords(from rawWords: [String]) -> [String] {
-        rawWords.map {
-            state.typingRules.applyCapitalization(
+        if SettingsManager.shared.isAutoCapitalizationEnabled {
+            return rawWords.map {
+                state.typingRules.applyCapitalization(
+                    original: state.compositionBuffer,
+                    suggested: $0,
+                    context: state.typingContext,
+                )
+            }
+        }
+        return rawWords.map {
+            state.typingRules.preserveCapitalization(
                 original: state.compositionBuffer,
                 suggested: $0,
-                context: state.typingContext,
             )
         }
     }

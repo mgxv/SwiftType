@@ -114,6 +114,7 @@
 		NF000001000000000000000D /* SpellCheckPredictorEdgeCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = NF000002000000000000000D /* SpellCheckPredictorEdgeCaseTests.swift */; };
 		NF000001000000000000000E /* SettingsManagerIsEnabledTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = NF000002000000000000000E /* SettingsManagerIsEnabledTests.swift */; };
 		NF000001000000000000000F /* SettingsManagerNextWordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = NF000002000000000000000F /* SettingsManagerNextWordTests.swift */; };
+		NF0000010000000000000010 /* SettingsManagerAutoCapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = NF0000020000000000000010 /* SettingsManagerAutoCapTests.swift */; };
 		NC0000010000000000000001 /* NotificationCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = NC0000020000000000000001 /* NotificationCounter.swift */; };
 		AC0000010000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AC0000020000000000000001 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
@@ -242,6 +243,7 @@
 		NF000002000000000000000D /* SpellCheckPredictorEdgeCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpellCheckPredictorEdgeCaseTests.swift; sourceTree = "<group>"; };
 		NF000002000000000000000E /* SettingsManagerIsEnabledTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManagerIsEnabledTests.swift; sourceTree = "<group>"; };
 		NF000002000000000000000F /* SettingsManagerNextWordTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManagerNextWordTests.swift; sourceTree = "<group>"; };
+		NF0000020000000000000010 /* SettingsManagerAutoCapTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManagerAutoCapTests.swift; sourceTree = "<group>"; };
 		NC0000020000000000000001 /* NotificationCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCounter.swift; sourceTree = "<group>"; };
 		AC0000020000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -512,6 +514,7 @@
 				NF0000020000000000000007 /* BaseLanguageCodeTests.swift */,
 				NF000002000000000000000E /* SettingsManagerIsEnabledTests.swift */,
 				NF000002000000000000000F /* SettingsManagerNextWordTests.swift */,
+				NF0000020000000000000010 /* SettingsManagerAutoCapTests.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -835,6 +838,7 @@
 				NF000001000000000000000D /* SpellCheckPredictorEdgeCaseTests.swift in Sources */,
 				NF000001000000000000000E /* SettingsManagerIsEnabledTests.swift in Sources */,
 				NF000001000000000000000F /* SettingsManagerNextWordTests.swift in Sources */,
+				NF0000010000000000000010 /* SettingsManagerAutoCapTests.swift in Sources */,
 				NC0000010000000000000001 /* NotificationCounter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

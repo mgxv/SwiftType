@@ -106,6 +106,22 @@ struct AppInputSourceMapping: Codable, Equatable, Sendable {
         NotificationCenter.default.post(name: .nextWordPredictionsSettingDidChange, object: nil)
     }
 
+    // MARK: - Auto Capitalization
+
+    private static let autoCapitalizationKey = "general.autoCapitalizationEnabled"
+
+    var isAutoCapitalizationEnabled: Bool {
+        defaults.object(forKey: Self.autoCapitalizationKey) == nil
+            ? true
+            : defaults.bool(forKey: Self.autoCapitalizationKey)
+    }
+
+    func setAutoCapitalizationEnabled(_ enabled: Bool) {
+        guard enabled != isAutoCapitalizationEnabled else { return }
+        defaults.set(enabled, forKey: Self.autoCapitalizationKey)
+        NotificationCenter.default.post(name: .autoCapitalizationSettingDidChange, object: nil)
+    }
+
     // MARK: - Private
 
     /// Persists the current mappings array to UserDefaults without posting a notification.

@@ -6,4 +6,5 @@ extension Notification.Name {
     static let languagesDidChange = Notification.Name("languagesDidChange")
     static let activePredictionLanguageDidChange = Notification.Name("activePredictionLanguageDidChange")
     static let nextWordPredictionsSettingDidChange = Notification.Name("nextWordPredictionsSettingDidChange")
+    static let autoCapitalizationSettingDidChange = Notification.Name("autoCapitalizationSettingDidChange")
 }
