@@ -27,6 +27,7 @@ extension SettingsWindowController {
         toggle.target = self
         toggle.action = #selector(nextWordPredictionsToggleChanged(_:))
         toggle.state = SettingsManager.shared.isNextWordPredictionsEnabled ? .on : .off
+        toggle.controlSize = .small
         toggle.translatesAutoresizingMaskIntoConstraints = false
         nextWordPredictionsToggle = toggle
         return makeSettingsRow(label: "Next Word Predictions (experimental)", control: toggle)
