@@ -171,9 +171,9 @@ import XCTest
         XCTAssertEqual(result.first, "H")
     }
 
-    func testApplyCapitalizationLowercaseOriginalStaysLowercase() {
+    func testApplyCapitalizationLowercaseOriginalAtSentenceStartCapitalises() {
         let result = rules.applyCapitalization(original: "h", suggested: "hello", context: "Go. ")
-        XCTAssertEqual(result.first, "h")
+        XCTAssertEqual(result.first, "H", "Sentence start after '.' → auto-capitalise")
     }
 
     func testApplyCapitalizationMidSentencePreservesOriginalCase() {

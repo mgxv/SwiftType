@@ -146,15 +146,15 @@ import XCTest
     // MARK: - sentenceEndingChars — size invariants
 
     func testEnglishSentenceEndingCharsExactCount() {
-        // Lock in exact size: {., !, ?} — 3 characters.
-        XCTAssertEqual(english.sentenceEndingChars.count, 3,
-                       "English sentenceEndingChars must contain exactly 3 characters")
+        // Lock in exact size: {., !, ?, …} — 4 characters.
+        XCTAssertEqual(english.sentenceEndingChars.count, 4,
+                       "English sentenceEndingChars must contain exactly 4 characters")
     }
 
     func testGermanSentenceEndingCharsExactCount() {
-        // Lock in exact size: {., !, ?, :} — 4 characters.
-        XCTAssertEqual(german.sentenceEndingChars.count, 4,
-                       "German sentenceEndingChars must contain exactly 4 characters (adds ':')")
+        // Lock in exact size: {., !, ?, :, …} — 5 characters.
+        XCTAssertEqual(german.sentenceEndingChars.count, 5,
+                       "German sentenceEndingChars must contain exactly 5 characters (adds ':')")
     }
 
     func testGermanSentenceEndingCharsIsStrictSupersetOfEnglish() {

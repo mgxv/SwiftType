@@ -1,15 +1,16 @@
 /// German-specific `TypingRules` conformance.
 ///
 /// Supplies the three character sets that drive auto-space removal, composition-buffer
-/// continuation, and sentence-boundary detection. Both protocol methods
+/// continuation, and sentence-boundary detection. Both capitalisation methods
 /// (`preserveCapitalization`, `applyCapitalization`) are inherited from the default
-/// implementations in `TypingRules`.
+/// implementations in `TypingRules`. `applyCapitalization` uses `sentenceEndingChars`
+/// to auto-capitalise suggestions at sentence start.
 ///
 /// Key differences from English:
 /// - Closing double-quote is U+201C " (German „text") rather than U+201D "
 /// - Closing guillemet is U+00AB « (Swiss-style »text«) rather than U+00BB »
 /// - Apostrophes still continue composition for informal contractions (e.g. "geht's")
-/// - Both capitalisation methods are inherited from the protocol defaults
+/// - `:` in `sentenceEndingChars` triggers auto-capitalisation after colons
 struct GermanTypingRules: TypingRules, Sendable {
     static let shared = GermanTypingRules()
 
@@ -36,8 +37,9 @@ struct GermanTypingRules: TypingRules, Sendable {
 
     /// Characters that mark sentence boundaries. Extends the English set with `:`
     /// because German grammar treats a colon introducing a complete sentence as a
-    /// sentence boundary (e.g. "Er sagte: Es ist schön.").
+    /// sentence boundary (e.g. "Er sagte: Es ist schön."). Includes the Unicode
+    /// ellipsis (U+2026) which macOS auto-substitutes from `...`.
     ///
-    /// This set has **4 members**; `TypingRulesEdgeCaseTests.testGermanSentenceEndingCharsExactCount` locks this in.
-    let sentenceEndingChars: Set<Character> = [".", "!", "?", ":"]
+    /// This set has **5 members**; `TypingRulesEdgeCaseTests.testGermanSentenceEndingCharsExactCount` locks this in.
+    let sentenceEndingChars: Set<Character> = [".", "!", "?", ":", "\u{2026}"]
 }

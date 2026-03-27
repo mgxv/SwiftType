@@ -1,51 +1,113 @@
 @testable import SwiftType
 import XCTest
 
-/// Tests verifying that `applyCapitalization` and `preserveCapitalization` behave
-/// identically — the default `applyCapitalization` delegates to `preserveCapitalization`
-/// and ignores the context parameter.
-///
-/// These tests lock in the current behavior: context is accepted but unused.
-/// If a future change makes `applyCapitalization` context-aware (e.g. auto-capitalizing
-/// at sentence start), these tests will catch the intentional behavior change.
+/// Tests verifying that `applyCapitalization` uses context to auto-capitalise suggestions
+/// at sentence start, while `preserveCapitalization` remains context-unaware.
 @MainActor final class TypingRulesContextCapitalizationTests: XCTestCase {
     let english = EnglishTypingRules.shared
     let german = GermanTypingRules.shared
 
-    // MARK: - applyCapitalization ignores context
+    // MARK: - Sentence-start auto-capitalisation
 
-    func testApplyCapitalizationIgnoresContextForEnglish() {
-        // Even with sentence-ending context, applyCapitalization only uses preserveCapitalization.
-        let withSentenceEnd = english.applyCapitalization(original: "h", suggested: "hello", context: "Go. ")
-        let withMidSentence = english.applyCapitalization(original: "h", suggested: "hello", context: "The ")
-        // Both should be lowercase "h" because preserveCapitalization sees lowercase "h".
-        XCTAssertEqual(withSentenceEnd, "hello")
-        XCTAssertEqual(withMidSentence, "hello")
+    func testAutoCapAfterPeriodEnglish() {
+        let result = english.applyCapitalization(original: "h", suggested: "hello", context: "Go. ")
+        XCTAssertEqual(result, "Hello")
     }
 
-    func testApplyCapitalizationIgnoresContextForGerman() {
-        let withSentenceEnd = german.applyCapitalization(original: "h", suggested: "hallo", context: "Gut. ")
-        let withMidSentence = german.applyCapitalization(original: "h", suggested: "hallo", context: "Das ")
-        XCTAssertEqual(withSentenceEnd, "hallo")
-        XCTAssertEqual(withMidSentence, "hallo")
+    func testAutoCapAfterPeriodGerman() {
+        let result = german.applyCapitalization(original: "h", suggested: "hallo", context: "Gut. ")
+        XCTAssertEqual(result, "Hallo")
     }
 
-    func testApplyCapitalizationMatchesPreserveCapitalization() {
-        let original = "Hel"
+    func testAutoCapAfterExclamation() {
+        let result = english.applyCapitalization(original: "w", suggested: "wow", context: "Amazing! ")
+        XCTAssertEqual(result, "Wow")
+    }
+
+    func testAutoCapAfterQuestion() {
+        let result = english.applyCapitalization(original: "y", suggested: "yes", context: "Really? ")
+        XCTAssertEqual(result, "Yes")
+    }
+
+    func testAutoCapAfterColonGerman() {
+        let result = german.applyCapitalization(original: "e", suggested: "es", context: "Er sagte: ")
+        XCTAssertEqual(result, "Es")
+    }
+
+    func testNoAutoCapAfterColonEnglish() {
+        let result = english.applyCapitalization(original: "t", suggested: "the", context: "Note: ")
+        XCTAssertEqual(result, "the", "Colon is not a sentence ender in English")
+    }
+
+    func testAutoCapWithEmptyContext() {
+        let result = english.applyCapitalization(original: "h", suggested: "hello", context: "")
+        XCTAssertEqual(result, "Hello", "Empty context = sentence start")
+    }
+
+    func testAutoCapWithWhitespaceOnlyContext() {
+        let result = english.applyCapitalization(original: "h", suggested: "hello", context: "   ")
+        XCTAssertEqual(result, "Hello", "Whitespace-only context = sentence start")
+    }
+
+    func testAutoCapAfterPeriodNoTrailingSpace() {
+        let result = english.applyCapitalization(original: "h", suggested: "hello", context: "End.")
+        XCTAssertEqual(result, "Hello", "Period without trailing space still triggers auto-cap")
+    }
+
+    func testAutoCapAfterPeriodMultipleTrailingSpaces() {
+        let result = english.applyCapitalization(original: "h", suggested: "hello", context: "End.   ")
+        XCTAssertEqual(result, "Hello")
+    }
+
+    // MARK: - Mid-sentence: no auto-capitalisation
+
+    func testNoAutoCapMidSentenceEnglish() {
+        let result = english.applyCapitalization(original: "h", suggested: "hello", context: "The ")
+        XCTAssertEqual(result, "hello")
+    }
+
+    func testNoAutoCapMidSentenceGerman() {
+        let result = german.applyCapitalization(original: "h", suggested: "hallo", context: "Das ")
+        XCTAssertEqual(result, "hallo")
+    }
+
+    func testNoAutoCapAfterComma() {
+        let result = english.applyCapitalization(original: "b", suggested: "but", context: "Yes, ")
+        XCTAssertEqual(result, "but")
+    }
+
+    // MARK: - User's explicit case wins over context
+
+    func testUserUppercaseWinsOverMidSentence() {
+        let result = english.applyCapitalization(original: "H", suggested: "hello", context: "The quick ")
+        XCTAssertEqual(result, "Hello", "User typed uppercase — preserve it regardless of context")
+    }
+
+    func testUserUppercaseWinsAtSentenceStart() {
+        let result = english.applyCapitalization(original: "H", suggested: "hello", context: "Go. ")
+        XCTAssertEqual(result, "Hello")
+    }
+
+    // MARK: - applyCapitalization differs from preserveCapitalization at sentence start
+
+    func testApplyDiffersFromPreserveAtSentenceStart() {
+        let apply = english.applyCapitalization(original: "h", suggested: "hello", context: "Go. ")
+        let preserve = english.preserveCapitalization(original: "h", suggested: "hello")
+        XCTAssertEqual(apply, "Hello")
+        XCTAssertEqual(preserve, "hello")
+        XCTAssertNotEqual(apply, preserve)
+    }
+
+    func testApplyMatchesPreserveMidSentence() {
+        let original = "h"
         let suggested = "hello"
-        let context = "Go. "
-
+        let context = "The quick "
         let apply = english.applyCapitalization(original: original, suggested: suggested, context: context)
         let preserve = english.preserveCapitalization(original: original, suggested: suggested)
         XCTAssertEqual(apply, preserve)
     }
 
-    func testApplyCapitalizationWithEmptyContext() {
-        let result = english.applyCapitalization(original: "H", suggested: "hello", context: "")
-        XCTAssertEqual(result, "Hello", "Empty context + uppercase original → preserve case")
-    }
-
-    // MARK: - preserveCapitalization edge cases
+    // MARK: - preserveCapitalization edge cases (unchanged)
 
     func testPreserveCapitalizationEmptyOriginal() {
         let result = english.preserveCapitalization(original: "", suggested: "world")
@@ -95,5 +157,17 @@ import XCTest
 
     func testGermanInsertsTrailingSpace() {
         XCTAssertTrue(german.insertsTrailingSpace)
+    }
+
+    // MARK: - Empty original with context
+
+    func testEmptyOriginalAtSentenceStart() {
+        let result = english.applyCapitalization(original: "", suggested: "hello", context: "End. ")
+        XCTAssertEqual(result, "hello", "Empty original — preserveCapitalization returns unchanged")
+    }
+
+    func testEmptySuggestedAtSentenceStart() {
+        let result = english.applyCapitalization(original: "h", suggested: "", context: "End. ")
+        XCTAssertEqual(result, "", "Empty suggested stays empty even at sentence start")
     }
 }

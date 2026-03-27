@@ -5,21 +5,21 @@ import XCTest
 ///
 /// `preserveCapitalization` is tested indirectly via `EnglishTypingRules` in
 /// `InputLogicTests` and `ContextTrimmingTests`.  This file closes the gap by
-/// testing `applyCapitalization` — the display-time helper that delegates to
-/// `preserveCapitalization` — again using `EnglishTypingRules` as the conformer.
+/// testing `applyCapitalization` — the context-aware display-time helper — again
+/// using `EnglishTypingRules` as the conformer.
 @MainActor final class TypingRulesTests: XCTestCase {
     private let rules: any TypingRules = EnglishTypingRules.shared
 
-    // MARK: - applyCapitalization — preserves original case
+    // MARK: - applyCapitalization — context-aware capitalisation
 
     func testApplyCapitalizationUppercaseOriginalUppercasesSuggested() {
         let result = rules.applyCapitalization(original: "Hel", suggested: "hello", context: "Done. ")
         XCTAssertEqual(result, "Hello")
     }
 
-    func testApplyCapitalizationLowercaseOriginalKeepsSuggestedLowercase() {
+    func testApplyCapitalizationLowercaseOriginalAtSentenceStartCapitalises() {
         let result = rules.applyCapitalization(original: "hel", suggested: "hello", context: "Done. ")
-        XCTAssertEqual(result, "hello")
+        XCTAssertEqual(result, "Hello")
     }
 
     func testApplyCapitalizationEmptyContextUppercaseOriginal() {
@@ -27,9 +27,9 @@ import XCTest
         XCTAssertEqual(result, "Hello")
     }
 
-    func testApplyCapitalizationEmptyContextLowercaseOriginal() {
+    func testApplyCapitalizationEmptyContextLowercaseOriginalCapitalises() {
         let result = rules.applyCapitalization(original: "hel", suggested: "hello", context: "")
-        XCTAssertEqual(result, "hello")
+        XCTAssertEqual(result, "Hello", "Empty context = sentence start → auto-capitalise")
     }
 
     func testApplyCapitalizationMidSentenceUppercaseOriginalPreservesCapital() {
@@ -64,9 +64,9 @@ import XCTest
         XCTAssertEqual(result, "hello")
     }
 
-    func testApplyCapitalizationSentenceEnderNoSpace() {
+    func testApplyCapitalizationSentenceEnderNoSpaceCapitalises() {
         let result = rules.applyCapitalization(original: "hel", suggested: "hello", context: "End.")
-        XCTAssertEqual(result, "hello")
+        XCTAssertEqual(result, "Hello", "Period without trailing space still triggers auto-cap")
     }
 
     // MARK: - preserveCapitalization — additional cases

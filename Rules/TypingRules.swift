@@ -32,9 +32,11 @@ protocol TypingRules: Sendable {
     /// with an uppercase letter, uppercases the first character of `suggested`.
     func preserveCapitalization(original: String, suggested: String) -> String
 
-    /// Display-time capitalisation: delegates to `preserveCapitalization` to match the
-    /// case of the user's typed input onto the suggestion. The `context` parameter is
-    /// accepted for protocol extensibility but unused by the default implementation.
+    /// Display-time capitalisation applied to each suggestion before showing in the
+    /// candidate bar. If the user typed an uppercase letter, their case is preserved
+    /// via `preserveCapitalization`. Otherwise, if `context` indicates a sentence start
+    /// (empty, or trailing `sentenceEndingChars` character), the suggestion is
+    /// auto-capitalised.
     func applyCapitalization(original: String, suggested: String, context: String) -> String
 }
 
@@ -48,7 +50,21 @@ extension TypingRules {
         return suggested.prefix(1).uppercased() + suggested.dropFirst()
     }
 
-    func applyCapitalization(original: String, suggested: String, context _: String) -> String {
-        preserveCapitalization(original: original, suggested: suggested)
+    func applyCapitalization(original: String, suggested: String, context: String) -> String {
+        if let first = original.first, first.isUppercase {
+            return preserveCapitalization(original: original, suggested: suggested)
+        }
+        if isAtSentenceStart(context: context) {
+            return suggested.prefix(1).uppercased() + suggested.dropFirst()
+        }
+        return preserveCapitalization(original: original, suggested: suggested)
+    }
+
+    /// Returns `true` when `context` indicates the next word is at the start of a sentence:
+    /// either the context is empty/whitespace-only, or the last non-whitespace character is
+    /// in `sentenceEndingChars`.
+    private func isAtSentenceStart(context: String) -> Bool {
+        guard let lastNonSpace = context.last(where: { !$0.isWhitespace }) else { return true }
+        return sentenceEndingChars.contains(lastNonSpace)
     }
 }
