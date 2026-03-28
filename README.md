@@ -2,9 +2,9 @@
   <img src="./Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png"
        width="150"
        height="150">
-  <div style="font-size:32px; font-weight:700; margin-top:4px;">
+  <h1 style="margin-top: 0 !important; margin-bottom: 0;">
     SwiftType
-  </div>
+  </h1>
 </div>
 
 <div align="center">
