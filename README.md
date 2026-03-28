@@ -1,9 +1,8 @@
 # SwiftType
 
 <div align="center">
-  <video src="https://github.com/user-attachments/assets/10520e05-88eb-41de-b4cb-d3d6b2302cea" autoplay loop muted playsinline style="max-width: 70%;"></video>
+  <img src="https://github.com/user-attachments/assets/c9d41752-d676-4ca5-83da-694390464168" style="max-width: 60%;"></img>
 </div>
-
 A native macOS input method that predicts what you're typing — and what you'll type next. It shows a floating candidate bar below your cursor with word completions, spelling corrections, and next-word suggestions, all running locally with no network calls.
 
 Built with Swift 6 and [InputMethodKit](https://developer.apple.com/documentation/inputmethodkit). Next-word predictions are powered by [KenLM](https://kheafield.com/code/kenlm/) n-gram language models, integrated through an Objective-C++ bridge.
