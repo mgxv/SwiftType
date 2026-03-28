@@ -1,10 +1,11 @@
 <div align="center">
 <img src="./Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png" width="150" height="150">
+
 # SwiftType
 </div>
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/c9d41752-d676-4ca5-83da-694390464168" style="max-width: 60%;"></img>
+  <img src="https://github.com/user-attachments/assets/c9d41752-d676-4ca5-83da-694390464168" width="600" alt="SwiftType Demo">
 </div>
 
 A native macOS input method that predicts what you're typing — and what you'll type next. It shows a floating candidate bar below your cursor with word completions, spelling corrections, and next-word suggestions, all running locally with no network calls.
