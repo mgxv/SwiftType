@@ -53,6 +53,7 @@ step "Cleaning previous build artifacts"
 chmod -R u+w "${PROJECT_DIR}/build" 2>/dev/null || true
 rm -rf "${PROJECT_DIR}/build" "${PKG_OUT}"
 mkdir -p "${BUILD_DIR}" "${DIST_DIR}" "${PKG_ROOT}" "${PKG_SCRIPTS}"
+touch "${PROJECT_DIR}/build/.metadata_never_index"
 info "Cleaned."
 
 # ── Step 3: Build Release ─────────────────────────────────────────────────────
@@ -185,6 +186,9 @@ pkgbuild \
     --ownership recommended \
     --install-location "${STAGING_DIR}" \
     "${PKG_OUT}"
+
+# ── Step 10: Clean up build staging ──────────────────────────────────────────
+rm -rf "${PKG_ROOT}" "${PKG_SCRIPTS}" "${COMPONENT_PLIST}"
 
 # ── Done ──────────────────────────────────────────────────────────────────────
 echo
